@@ -1,0 +1,90 @@
+====================================================
+  AutoKit 闪退终极修复 v3 - 使用说明
+====================================================
+
+【新发现】
+  在车机系统中找到了启动白名单机制：
+  /system/usr/bootwhitelist.txt
+  
+  只有列在白名单中的应用才受系统保护。
+  之前所有方案都没有修改这个白名单，这是失败的关键原因。
+
+  当前白名单（6个应用）：
+    com.incall.apps.usercenter
+    com.car.can
+    com.car.avm
+    com.car.cs75_voice
+    com.car.cs75_media
+    com.car.radio
+
+  另外还有黑名单 /system/usr/bootblacklist.txt（6个应用被禁止启动）
+
+【另一个发现】
+  之前以为 app-release.apk 是喜马拉雅FM，
+  实际解析后发现包名是 cn.com.changan.autocheck（长安自检），
+  不推荐替换（可能影响车辆自检功能）。
+
+====================================================
+Phase 1: 白名单 + 系统应用安装（优先尝试）
+====================================================
+
+【原理】
+  将AutoKit加入白名单 + 安装为priv-app系统应用，
+  使车机系统像对待其他核心应用一样保护它的缓存和数据。
+
+【文件清单】
+  phase1_deploy.sh     - 一键部署（白名单+系统安装）
+  phase1_uninstall.sh  - 一键卸载恢复
+  diagnose.sh          - 诊断工具（检查部署状态）
+
+【操作步骤】
+
+  第一步：准备文件
+    1. U盘中放入：
+       - AutoKit_2022.11.15.1535.apk（在"车机软件包"文件夹）
+       - phase1_deploy.sh
+       - diagnose.sh
+    2. U盘插车机
+    3. 用RE管理器把这3个文件复制到 /sdcard/ 根目录
+
+  第二步：执行部署
+    1. RE管理器 → 进入 /sdcard/
+    2. 长按 phase1_deploy.sh → 以脚本执行
+    3. 授予Root权限（弹框点允许）
+    4. 等待看到"部署完成"
+
+  第三步：验证部署
+    1. 长按 diagnose.sh → 以脚本执行
+    2. 确认所有项目显示 ✓
+
+  第四步：重启测试
+    1. 完全断电（断电瓶30秒以上，不是Quick Boot）
+    2. 重新通电启动车机
+    3. 尝试打开AutoKit → 应该不会闪退
+    4. 再次断电30秒 → 再启动 → 再打开AutoKit
+    5. 连续测试3次冷启动
+
+  第五步：验证结果
+    ✓ 3次冷启动后AutoKit均可正常打开 → 修复成功！
+    ✗ 仍然闪退 → 执行 diagnose.sh 查看状态后反馈
+
+【恢复方法】
+  如需恢复原状：
+    RE管理器执行 phase1_uninstall.sh → 重启
+
+====================================================
+如果 Phase 1 失败（备用信息）
+====================================================
+
+  Phase 2 方案：修改出厂固件 update.zip
+    - 将AutoKit直接内嵌为出厂系统应用
+    - 预先写入白名单
+    - 通过车机更新功能刷入
+    - 风险较高，需要进一步分析 update.zip 打包格式
+
+  关键技术信息（供排查用）：
+    - AutoKit包名: cn.manstep.phonemirrorBox
+    - app-release.apk包名: cn.com.changan.autocheck（长安自检，不要替换）
+    - SELinux: permissive（不会阻止文件操作）
+    - Dalvik: libdvm.so（非ART）
+    - Quick Boot: 500ms（但用户的问题是完全断电冷启动）

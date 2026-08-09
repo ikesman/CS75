@@ -1,0 +1,15 @@
+# 大型固件与应用通过 GitHub Release 发布；普通 Git 仓库不提交二进制安装包。
+*.zip
+*.rar
+*.apk
+*.img
+
+# 教程必须的两个小型安装包直接随网站源码发布。
+!常用APP（降级成功后如果要安装第三方软件，记得先把里面的apk先都放进U盘根目录）/re.apk
+!车机软件包/AutoKit_2022.11.15.1535.apk
+
+# 本地分析、调试与 Android 平台工具不属于网站源码。
+_analysis/
+platform-tools/
+.accelerate/
+*.log
