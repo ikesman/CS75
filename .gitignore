@@ -13,3 +13,6 @@ _analysis/
 platform-tools/
 .accelerate/
 *.log
+
+# 本地网盘上传目录（以硬链接复用原始大文件），不纳入 Pages 源码。
+CS75车机资源分享包/
